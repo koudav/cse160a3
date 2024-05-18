@@ -12,9 +12,9 @@
 
     
     <p id = "numdot"> XXX </p>
-    <p>Shift click the canvas to start or stop walking (default camera recommended).
-    <p> Click the reset button to reset.</p>
-    <p>In addition to the camera sliders, you can also click and drag to change the camera.</p>
+    <p>Shift click the canvas to start or stop walking.
+    <p>Click the reset button to reset the person.</p>
+    <p>You can also click and drag to change the camera.</p>
     <!--<button type="button" id="green">Green</button>
     <button type="button" id="red">Red</button>
     
@@ -27,21 +27,7 @@
     <button type="button" id="circleButton">Circle</button>
     <button type="button" id="surpriseButton">Surprise! (This is my drawing. You can add stars yourself if you'd like.)</button> -->
 
-  
-    <p>
-    Neck Rotation <input type="range" min="-45" max="45" value="0" class="slider" id="neckSlide">
-    <button type="button" id="neckStartAniButton">Start Animation</button>
-    <button type="button" id="neckStopAniButton">Stop Animation</button>
-    <p>
-    <p>
-    Head Rotation <input type="range" min="-45" max="45" value="0" class="slider" id="headSlide">
-    <button type="button" id="headStartAniButton">Start Animation</button>
-    <button type="button" id="headStopAniButton">Stop Animation</button>
-    <p>
-    Hat Rotation <input type="range" min="-20" max="20" value="0" class="slider" id="hatSlide">
-    <button type="button" id="hatStartAniButton">Start Animation</button>
-    <button type="button" id="hatStopAniButton">Stop Animation</button>
-    <p>
+
     <!--<p>
     Red <input type="range" min="0" max="100" value="100" class="slider" id="redSlide">
     <p>
@@ -52,14 +38,37 @@
     Alpha (I'm cool! I'm <b>awesome</b>! I use a blending function that the webpage creator doesn't fully understand!!) <input type="range" min="0" max="100" value="100" class="slider" id="alphaSlide">
     <p>-->
       
-    Camera Angle X <input type="range" min="-120" max="120" value="30" class="slider" id="angleXSlide">
+    <!--Camera Angle X <input type="range" min="-120" max="120" value="30" class="slider" id="angleXSlide">
     <p>
     Camera Angle Y <input type="range" min="-120" max="120" value="0" class="slider" id="angleYSlide">
-    <p>
+    <p>-->
     <!--<button type="button" id="walkEnableButton">Start walking</button>
     <button type="button" id="walkDisableButton">Stop walking</button>-->
     <button type="button" id="walkResetButton">Reset</button>
     <p>
+
+    <p>
+    Let's play a game. This world was randomly generated. How many of each cube exist in this world?
+    </p>
+    <form id = "guessForm">
+    <label for="clubsInput">Clubs:</label>
+    <input type="text" id="clubsInput"></input>
+    <label for="clubsOutput" id="clubsOutput"></label>
+    <p></p>
+    <label for="diamondsInput">Diamonds:</label>
+    <input type="text" id="diamondsInput"></input>
+    <label for="diamondsOutput" id="diamondsOutput"></label>
+    <p></p>
+    <label for="heartsInput">Hearts:</label>
+    <input type="text" id="heartsInput"></input>
+    <label for="heartsOutput" id="heartsOutput"></label>
+    <p></p>
+    <label for="spadesInput">Spades:</label>
+    <input type="text" id="spadesInput"></input>
+    <label for="spadesOutput" id="spadesOutput"></label>
+    <p></p>
+    <input type="submit" value="Guess!">
+    </form>
     <!--<p>
     Size <input type="range" min="5" max="40" value="0" class="slider" id="sizeSlide">
     <p>
@@ -73,6 +82,8 @@
     <script src="../lib/webgl-debug.js"></script>
     <script src="../lib/cuon-matrix-cse160.js"></script>
     <script src="../lib/cuon-utils.js"></script>
+    <script src="Camera.js"></script>
+    <script src="MapNode.js"></script>
     <script src="Circle.js"></script>
     <script src="Triangle.js"></script>
     <script src="Cylinder.js"></script>

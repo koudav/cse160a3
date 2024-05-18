@@ -21,6 +21,10 @@ var FSHADER_SOURCE = `
   uniform vec4 u_FragColor;
   uniform sampler2D u_Sampler0;
   uniform sampler2D u_Sampler1;
+  uniform sampler2D u_Sampler10;
+  uniform sampler2D u_Sampler11;
+  uniform sampler2D u_Sampler12;
+  uniform sampler2D u_Sampler13;
   uniform int u_whichTexture;
   void main() {
     if (u_whichTexture == -2) { // use color
@@ -34,6 +38,18 @@ var FSHADER_SOURCE = `
     }
     else if (u_whichTexture == 1) { // use texture1
       gl_FragColor = texture2D(u_Sampler1, v_UV);
+    }
+    else if (u_whichTexture == 10) { // use texture10
+      gl_FragColor = texture2D(u_Sampler10, v_UV);
+    }
+    else if (u_whichTexture == 11) { // use texture11
+      gl_FragColor = texture2D(u_Sampler11, v_UV);
+    }
+    else if (u_whichTexture == 12) { // use texture12
+      gl_FragColor = texture2D(u_Sampler12, v_UV);
+    }
+    else if (u_whichTexture == 13) { // use texture13
+      gl_FragColor = texture2D(u_Sampler13, v_UV);
     }
     else { // error (reddish)
         gl_FragColor = vec4(1, .2, .2, 1);
@@ -53,6 +69,10 @@ let u_ModelMatrix;
 let u_GlobalRotateMatrix;
 let u_Sampler0;
 let u_Sampler1;
+let u_Sampler10;
+let u_Sampler11;
+let u_Sampler12;
+let u_Sampler13;
 let u_whichTexture;
 
 function setupWebGL(){
@@ -140,6 +160,30 @@ function connectVariablesToGLSL(){
      return false;
    }
 
+   u_Sampler10 = gl.getUniformLocation(gl.program, 'u_Sampler10');
+   if (!u_Sampler10) {
+     console.log('Failed to get the storage location of u_Sampler10');
+     return false;
+   }
+
+   u_Sampler11 = gl.getUniformLocation(gl.program, 'u_Sampler11');
+   if (!u_Sampler11) {
+     console.log('Failed to get the storage location of u_Sampler11');
+     return false;
+   }
+
+   u_Sampler12 = gl.getUniformLocation(gl.program, 'u_Sampler12');
+   if (!u_Sampler12) {
+     console.log('Failed to get the storage location of u_Sampler12');
+     return false;
+   }
+
+   u_Sampler13 = gl.getUniformLocation(gl.program, 'u_Sampler13');
+   if (!u_Sampler13) {
+     console.log('Failed to get the storage location of u_Sampler13');
+     return false;
+   }
+
    // Get storage location of u_whichTexture
    u_whichTexture = gl.getUniformLocation(gl.program, 'u_whichTexture');
    if (!u_whichTexture) {
@@ -179,6 +223,11 @@ let g_neckAnimationRunning = false;
 let g_headAnimationRunning = false;
 let g_walkAnimationRunning = false;
 
+let g_numClubs = 0;
+let g_numDiamonds = 0;
+let g_numHearts = 0;
+let g_numSpades = 0;
+
 // Set up actions for HTML UI elements
 function addActionsForHtmlUI() {
   
@@ -197,7 +246,7 @@ function addActionsForHtmlUI() {
   document.getElementById("cyanSlide").addEventListener('mouseup', function() {g_selectedColor[1] = this.value/100;});
   document.getElementById("blueSlide").addEventListener('mouseup', function() {g_selectedColor[2] = this.value/100;});*/
   //document.getElementById("alphaSlide").addEventListener('mouseup', function() {g_selectedColor[3] = this.value/100;});
-  document.getElementById("neckStartAniButton").onclick = function() {g_neckAnimationRunning = true; };
+  /*document.getElementById("neckStartAniButton").onclick = function() {g_neckAnimationRunning = true; };
   document.getElementById("neckStopAniButton").onclick = function() {g_neckAnimationRunning = false; };
   document.getElementById("headStartAniButton").onclick = function() {g_headAnimationRunning = true; };
   document.getElementById("headStopAniButton").onclick = function() {g_headAnimationRunning = false; };
@@ -207,7 +256,7 @@ function addActionsForHtmlUI() {
   document.getElementById("angleYSlide").addEventListener('input', function() {g_globalAngleY = this.value; renderAllShapes();});
   document.getElementById("neckSlide").addEventListener('input', function() {g_neckAngle = this.value; g_neckAnimationRunning = false; renderAllShapes();});
   document.getElementById("headSlide").addEventListener('input', function() {g_headAngle = this.value; g_headAnimationRunning = false; renderAllShapes();});
-  document.getElementById("hatSlide").addEventListener('input', function() {g_hatAngle = this.value; g_hatAnimationRunning = false; renderAllShapes();});
+  document.getElementById("hatSlide").addEventListener('input', function() {g_hatAngle = this.value; g_hatAnimationRunning = false; renderAllShapes();});*/
   //ocument.getElementById("walkEnableButton").onclick = function() {g_walkAnimationRunning = true;};
   //document.getElementById("walkDisableButton").onclick = function() {g_walkAnimationRunning = false};
   document.getElementById("walkResetButton").onclick = function() {
@@ -215,6 +264,80 @@ function addActionsForHtmlUI() {
     g_bodyZOffset = 0; g_leftLegAngle = 0; g_rightLegAngle = 0; g_headAngle = 0; g_neckAngle = 0; g_hatAngle = 0;
     g_globalAngleX = 30; g_globalAngleY = 0;
   };
+
+  var form = document.getElementById("guessForm");
+  form.onsubmit = function(ev) {
+    ev.preventDefault();
+    var clubs = document.getElementById("clubsInput").value;
+    var diamonds = document.getElementById("diamondsInput").value;
+    var hearts = document.getElementById("heartsInput").value;
+    var spades = document.getElementById("spadesInput").value;
+
+    console.log(clubs, diamonds, hearts, spades);
+    if (g_numClubs == clubs) {
+      sendTextToHTML("Spot on!", "clubsOutput");
+    }
+    else if (Math.abs(g_numClubs - clubs) < 5) {
+      sendTextToHTML("Very close!", "clubsOutput");
+    }
+    else if (Math.abs(g_numClubs - clubs) < 25) {
+      sendTextToHTML("Getting warmer!", "clubsOutput");
+    }
+    else if (Math.abs(g_numClubs - clubs) < 50) {
+      sendTextToHTML("Lukewarm, at best.", "clubsOutput");
+    }
+    else {
+      sendTextToHTML("Quite cold.", "clubsOutput");
+    }
+
+    if (g_numDiamonds == diamonds) {
+      sendTextToHTML("Spot on!", "diamondsOutput");
+    }
+    else if (Math.abs(g_numDiamonds - diamonds) < 5) {
+      sendTextToHTML("Very close!", "diamondsOutput");
+    }
+    else if (Math.abs(g_numDiamonds - diamonds) < 25) {
+      sendTextToHTML("Getting warmer!", "diamondsOutput");
+    }
+    else if (Math.abs(g_numDiamonds - diamonds) < 50) {
+      sendTextToHTML("Lukewarm, at best.", "diamondsOutput");
+    }
+    else {
+      sendTextToHTML("Quite cold.", "diamondsOutput");
+    }
+
+    if (g_numHearts == hearts) {
+      sendTextToHTML("Spot on!", "heartsOutput");
+    }
+    else if (Math.abs(g_numHearts - hearts) < 5) {
+      sendTextToHTML("Very close!", "heartsOutput");
+    }
+    else if (Math.abs(g_numHearts - hearts) < 25) {
+      sendTextToHTML("Getting warmer!", "heartsOutput");
+    }
+    else if (Math.abs(g_numHearts - hearts) < 50) {
+      sendTextToHTML("Lukewarm, at best.", "heartsOutput");
+    }
+    else {
+      sendTextToHTML("Quite cold.", "heartsOutput");
+    }
+
+    if (g_numSpades == spades) {
+      sendTextToHTML("Spot on!", "spadesOutput");
+    }
+    else if (Math.abs(g_numSpades - spades) < 5) {
+      sendTextToHTML("Very close!", "spadesOutput");
+    }
+    else if (Math.abs(g_numSpades - spades) < 25) {
+      sendTextToHTML("Getting warmer!", "spadesOutput");
+    }
+    else if (Math.abs(g_numSpades - spades) < 50) {
+      sendTextToHTML("Lukewarm, at best.", "spadesOutput");
+    }
+    else {
+      sendTextToHTML("Quite cold.", "spadesOutput");
+    }
+  } 
   
 
   // Size Slider Events
@@ -239,6 +362,9 @@ function main() {
   canvas.onmousedown = click;
   // and also while moving, if a button is pressed
   canvas.onmousemove = function(ev) {if(ev.buttons == 1) {mouseCamera(ev);}};
+
+  // and on keypress
+  document.onkeydown = keydown;
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -276,6 +402,40 @@ function initTextures(){
   image1.src = 'sky.jpg';
 
   // Can add more textures
+  var image10 = new Image();
+  if (!image10) {
+    console.log('Failed to create Image object for image10');
+    return false;
+  }
+  image10.onload = function() { sendImageToTEXTURE10(image10);};
+  image10.src = 'club.png';
+
+  var image11 = new Image();
+  if (!image11) {
+    console.log('Failed to create Image object for image11');
+    return false;
+  }
+  image11.onload = function() { sendImageToTEXTURE11(image11);};
+  image11.src = 'diamond.png';
+
+  var image12 = new Image();
+  if (!image12) {
+    console.log('Failed to create Image object for image12');
+    return false;
+  }
+  image12.onload = function() { sendImageToTEXTURE12(image12);};
+  image12.src = 'heart.png';
+
+  var image13 = new Image();
+  if (!image13) {
+    console.log('Failed to create Image object for image13');
+    return false;
+  }
+  image13.onload = function() { sendImageToTEXTURE13(image13);};
+  image13.src = 'spade.png';
+
+
+
 
   return true;
 }
@@ -338,6 +498,122 @@ function sendImageToTEXTURE1(image) {
   //return true;
 }
 
+function sendImageToTEXTURE10(image) {
+  var texture = gl.createTexture();
+  if (!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
+  // Enable texture unit
+  gl.activeTexture(gl.TEXTURE10);
+  // Bind the texture object to the target
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  // Set the texture parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Set the texture image
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+  
+  // Set the texture unit 10 to the sampler
+  gl.uniform1i(u_Sampler10, 10);
+  
+  gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+
+  //gl.drawArrays(gl.TRIANGLE_STRIP, 0, n); // Draw the rectangle
+  console.log("Finished loadTexture");
+  
+  //return true;
+}
+
+function sendImageToTEXTURE11(image) {
+  var texture = gl.createTexture();
+  if (!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
+  // Enable texture unit
+  gl.activeTexture(gl.TEXTURE11);
+  // Bind the texture object to the target
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  // Set the texture parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Set the texture image
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+  
+  // Set the texture unit 11 to the sampler
+  gl.uniform1i(u_Sampler11, 11);
+  
+  gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+
+  //gl.drawArrays(gl.TRIANGLE_STRIP, 0, n); // Draw the rectangle
+  console.log("Finished loadTexture");
+  
+  //return true;
+}
+
+function sendImageToTEXTURE12(image) {
+  var texture = gl.createTexture();
+  if (!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
+  // Enable texture unit
+  gl.activeTexture(gl.TEXTURE12);
+  // Bind the texture object to the target
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  // Set the texture parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Set the texture image
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+  
+  // Set the texture unit 12 to the sampler
+  gl.uniform1i(u_Sampler12, 12);
+  
+  gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+
+  //gl.drawArrays(gl.TRIANGLE_STRIP, 0, n); // Draw the rectangle
+  console.log("Finished loadTexture");
+  
+  //return true;
+}
+
+function sendImageToTEXTURE13(image) {
+  var texture = gl.createTexture();
+  if (!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
+  // Enable texture unit
+  gl.activeTexture(gl.TEXTURE13);
+  // Bind the texture object to the target
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  // Set the texture parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Set the texture image
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+  
+  // Set the texture unit 13 to the sampler
+  gl.uniform1i(u_Sampler13, 13);
+  
+  gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+
+  //gl.drawArrays(gl.TRIANGLE_STRIP, 0, n); // Draw the rectangle
+  console.log("Finished loadTexture");
+  
+  //return true;
+}
+
 var g_startTime = performance.now() / 1000.0;
 var g_seconds = performance.now() / 1000.0 - g_startTime;
 
@@ -374,12 +650,38 @@ function mouseCamera(ev){
     g_globalAngleX += 1;
   }
   if (y < lastMouseCoord[1]) {
-    g_globalAngleY += 1;
-  }
-  else if (y > lastMouseCoord[1]){
     g_globalAngleY -= 1;
   }
+  else if (y > lastMouseCoord[1]){
+    g_globalAngleY += 1;
+  }
   lastMouseCoord = [x, y];
+}
+
+function keydown(ev) {
+  if (ev.keyCode == 87) { // w
+    //g_camera.eye.elements[0] += 0.2;
+    g_camera.forward();
+  } 
+  else if (ev.keyCode == 83) { // s
+    //g_camera.eye.elements[0] -= 0.2;
+    g_camera.back();
+  }
+  else if (ev.keyCode == 65) { // a
+    g_camera.left();
+  }
+  else if (ev.keyCode == 68) { // d
+    g_camera.right();
+  }
+  else if (ev.keyCode == 69) { // e
+    g_camera.rotRight();
+  }
+  else if (ev.keyCode == 81) { // q
+    g_camera.rotLeft();
+  }
+  
+  console.log(ev.keyCode);
+  renderAllShapes();
 }
 
 function click(ev) {
@@ -480,9 +782,90 @@ function updateAnimationAngles() {
   }
 }
 
-var g_eye = [0,0,3];
-var g_at = [0,0,-100];
-var g_up = [0,1,0];
+var g_mapGenerated = false;
+var g_cubesGenerated = false;
+
+var g_mapLen = 32;
+
+var g_cubeHeightMap;
+var g_cubeTextureMap;
+var g_cubePointerMap;
+
+var g_numTextures = 4;
+var g_maxHeight = 4;
+
+function setMapHeights() {
+//var map_len = 32;
+  g_cubeHeightMap = new Array(g_mapLen);
+  for (let i = 0; i < g_mapLen; ++i) {
+    g_cubeHeightMap[i] = new Array(g_mapLen);
+    for (let j = 0; j < g_mapLen; ++j) {
+      if ((Math.abs(g_mapLen/2 - i) < 4)  && (Math.abs(g_mapLen/2 - j) < 4)) {
+        g_cubeHeightMap[i][j] = 0;
+      }
+      else {
+        g_cubeHeightMap[i][j] = Math.floor(Math.random() * g_maxHeight);
+      }
+    }
+  }
+
+  console.log("map heights:", g_cubeHeightMap);
+}
+
+function setMapTextures() {
+  //var map_len = 32;
+  g_cubeTextureMap = new Array(g_mapLen);
+    for (let i = 0; i < g_mapLen; ++i) {
+      g_cubeTextureMap[i] = new Array(g_mapLen);
+      for (let j = 0; j < g_mapLen; ++j) {
+        g_cubeTextureMap[i][j] = Math.floor(Math.random() * g_numTextures) + 10;
+        //g_cubeTextureMap[i][j] = -1;
+      }
+    }
+  
+    console.log("map textures:", g_cubeTextureMap);
+  }
+
+  function initMapCubes() {
+    g_cubeTextureMap = new Array(g_mapLen);
+    for (let i = 0; i < g_mapLen; ++i) {
+      g_cubeTextureMap[i] = new Array(g_mapLen);
+      for (let j = 0; j < g_mapLen; ++j) {
+        g_cubeTextureMap[i][j] = Math.floor(Math.random() * g_numTextures);
+        //g_cubeTextureMap[i][j] = -1;
+      }
+    }
+  
+    console.log("map textures:", g_cubeTextureMap);
+  }
+  
+
+//var bod = new Cube();
+function drawMap() {
+  for (let i = 0; i < g_mapLen; ++i) {
+    for (let j = 0; j < g_mapLen; ++j) {
+      for (let k = 0; k < g_cubeHeightMap[i][j]; ++k) {
+        var bod = new Cube();
+        
+        bod.color = [1.0, 1.0, 1.0, 1.0];
+        bod.textureNum = g_cubeTextureMap[i][j];
+        bod.matrix.translate(i - (g_mapLen / 2), -1, j - (g_mapLen / 2));
+        bod.matrix.translate(0, k, 0);
+        bod.renderFastTest();
+      }
+    }
+  } 
+
+  g_cubesGenerated = true;
+}
+
+
+//var g_eye = new Vector3([0,0,3]);
+//var g_at = new Vector3([0,0,-100]);
+//var g_up = new Vector3([0,1,0]);
+var g_camera = new Camera();
+
+var t_bool = false;
 
 function renderAllShapes(){
   // Check time at start of function
@@ -490,12 +873,18 @@ function renderAllShapes(){
 
   // Pass projection matrix
   var projMat = new Matrix4();
-  projMat.setPerspective(60, canvas.width/canvas.height, .1, 100);
+  projMat.setPerspective(90, canvas.width/canvas.height, .1, 100);
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
   // Pass view matrix
   var viewMat = new Matrix4();
-  viewMat.setLookAt(g_eye[0], g_eye[1], g_eye[2], g_at[0], g_at[1], g_at[2], g_up[0], g_up[1], g_up[2]);
+  // debug
+  //console.log(g_eye.elements[2], g_camera.eye.elements[2]);
+  viewMat.setLookAt(g_camera.eye.elements[0], g_camera.eye.elements[1], g_camera.eye.elements[2], 
+    g_camera.at.elements[0], g_camera.at.elements[1], g_camera.at.elements[2], 
+    g_camera.up.elements[0], g_camera.up.elements[1], g_camera.up.elements[2]);
+  
+  //viewMat.setLookAt(g_eye[0], g_eye[1], g_eye[2], g_at[0], g_at[1], g_at[2], g_up[0], g_up[1], g_up[2]);
   //viewMat.setLookAt(0,0,3, 0,0,-100, 0,1,0); // (eye, at, up)
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
@@ -517,7 +906,7 @@ function renderAllShapes(){
 
   
   for(var i = 0; i < len; i++) {
-    g_shapesList[i].render();
+    g_shapesList[i].render_fast();
   }*/
 
   // test triangle
@@ -525,29 +914,45 @@ function renderAllShapes(){
 
   // next time i am defining variables to feed into these matrices instead of hard coding
 
+  // test cube
+
+  var testCube = new Cube();
+  testCube.color = [1.0, 1.0, 0.2, 1.0];
+  testCube.textureNum = -1;
+  testCube.renderFastTest();
+
   // skybox
   var skyBox = new Cube();
   skyBox.color = [1.0, 0.2, 0.2, 1.0];
   skyBox.textureNum = 1;
   let sky_size = 20;
-  skyBox.matrix.translate(-1 * sky_size, 3, -1 * sky_size);
-  skyBox.matrix.scale(2 * sky_size, sky_size, 2 * sky_size);
-  skyBox.render();
+  skyBox.matrix.translate(-1 * sky_size, -1 * sky_size, -1 * sky_size);
+  skyBox.matrix.scale(2 * sky_size, 2* sky_size, 2 * sky_size);
+  skyBox.renderFastTest();
 
   // ground...box?
   var groundBox = new Cube();
   groundBox.color = [0.4, 0.2, 0.2, 1.0];
   groundBox.textureNum = -2;
   let ground_size = 20;
-  groundBox.matrix.translate(-1 * ground_size, -1.06, -1 * ground_size);
+  groundBox.matrix.translate(-1 * ground_size, -1.01, -1 * ground_size);
   groundBox.matrix.scale(2 * ground_size, 0.1, 2 * ground_size);
   groundBox.render();
 
+  // the map
+  if (!g_mapGenerated) {
+    setMapHeights();
+    setMapTextures();
+    g_mapGenerated = true;
+  }
+  drawMap();
+
 
   // draw body
+  var speedScalar = 0.5;
   var body = new Cube();
   body.color = [1.0, 0.0, 0.0, 1.0];
-  body.matrix.translate(-0.25, -0.25 + 0.003 * (Math.max(g_rightLegAngle, g_leftLegAngle)), 0.5 - 0.01 * g_bodyZOffset);
+  body.matrix.translate(-0.25, -0.25 + 0.003 * (Math.max(g_rightLegAngle, g_leftLegAngle)), 0.5 - speedScalar * g_bodyZOffset);
   body.matrix.rotate(-5, 1, 0, 0);
   var bodyCoordinatesMat = new Matrix4(body.matrix);
   body.matrix.scale(0.5, 0.75, 0.25);
