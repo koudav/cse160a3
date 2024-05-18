@@ -283,11 +283,14 @@ function addActionsForHtmlUI() {
     else if (Math.abs(g_numClubs - clubs) < 25) {
       sendTextToHTML("Getting warmer!", "clubsOutput");
     }
-    else if (Math.abs(g_numClubs - clubs) < 50) {
+    else if (Math.abs(g_numClubs - clubs) < 75) {
       sendTextToHTML("Lukewarm, at best.", "clubsOutput");
     }
-    else {
+    else if (Math.abs(g_numClubs - clubs) < 250) {
       sendTextToHTML("Quite cold.", "clubsOutput");
+    }
+    else {
+      sendTextToHTML("Very cold.", "clubsOutput");
     }
 
     if (g_numDiamonds == diamonds) {
@@ -299,11 +302,14 @@ function addActionsForHtmlUI() {
     else if (Math.abs(g_numDiamonds - diamonds) < 25) {
       sendTextToHTML("Getting warmer!", "diamondsOutput");
     }
-    else if (Math.abs(g_numDiamonds - diamonds) < 50) {
+    else if (Math.abs(g_numDiamonds - diamonds) < 75) {
       sendTextToHTML("Lukewarm, at best.", "diamondsOutput");
     }
-    else {
+    else if (Math.abs(g_numDiamonds - diamonds) < 250) {
       sendTextToHTML("Quite cold.", "diamondsOutput");
+    }
+    else {
+      sendTextToHTML("Very cold.", "diamondsOutput");
     }
 
     if (g_numHearts == hearts) {
@@ -315,11 +321,14 @@ function addActionsForHtmlUI() {
     else if (Math.abs(g_numHearts - hearts) < 25) {
       sendTextToHTML("Getting warmer!", "heartsOutput");
     }
-    else if (Math.abs(g_numHearts - hearts) < 50) {
+    else if (Math.abs(g_numHearts - hearts) < 75) {
       sendTextToHTML("Lukewarm, at best.", "heartsOutput");
     }
-    else {
+    else if (Math.abs(g_numHearts - hearts) < 250) {
       sendTextToHTML("Quite cold.", "heartsOutput");
+    }
+    else {
+      sendTextToHTML("Very cold.", "heartsOutput");
     }
 
     if (g_numSpades == spades) {
@@ -331,11 +340,14 @@ function addActionsForHtmlUI() {
     else if (Math.abs(g_numSpades - spades) < 25) {
       sendTextToHTML("Getting warmer!", "spadesOutput");
     }
-    else if (Math.abs(g_numSpades - spades) < 50) {
+    else if (Math.abs(g_numSpades - spades) < 75) {
       sendTextToHTML("Lukewarm, at best.", "spadesOutput");
     }
-    else {
+    else if (Math.abs(g_numSpades - spades) < 250) {
       sendTextToHTML("Quite cold.", "spadesOutput");
+    }
+    else {
+      sendTextToHTML("Very cold.", "spadesOutput");
     }
   } 
   
@@ -916,10 +928,10 @@ function renderAllShapes(){
 
   // test cube
 
-  var testCube = new Cube();
+  /*var testCube = new Cube();
   testCube.color = [1.0, 1.0, 0.2, 1.0];
   testCube.textureNum = -1;
-  testCube.renderFastTest();
+  testCube.renderFastTest();*/
 
   // skybox
   var skyBox = new Cube();
@@ -959,6 +971,7 @@ function renderAllShapes(){
         }
       }
     }
+    console.log("ans: ", g_numClubs, g_numDiamonds, g_numHearts, g_numSpades);
     g_mapGenerated = true;
   }
   drawMap();
