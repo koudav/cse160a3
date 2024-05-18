@@ -52,7 +52,7 @@ var FSHADER_SOURCE = `
       gl_FragColor = texture2D(u_Sampler13, v_UV);
     }
     else { // error (reddish)
-        gl_FragColor = vec4(1, .2, .2, 1);
+      gl_FragColor = vec4(1, .2, .2, 1);
     }
   }`
 
@@ -943,6 +943,22 @@ function renderAllShapes(){
   if (!g_mapGenerated) {
     setMapHeights();
     setMapTextures();
+    for (let i = 0; i < g_mapLen; ++i) {
+      for (let j = 0; j < g_mapLen; ++j) {
+        if (g_cubeTextureMap[i][j] == 10) {
+          g_numClubs += g_cubeHeightMap[i][j];
+        }
+        if (g_cubeTextureMap[i][j] == 11) {
+          g_numDiamonds += g_cubeHeightMap[i][j];
+        }
+        if (g_cubeTextureMap[i][j] == 12) {
+          g_numHearts += g_cubeHeightMap[i][j];
+        }
+        if (g_cubeTextureMap[i][j] == 13) {
+          g_numSpades += g_cubeHeightMap[i][j];
+        }
+      }
+    }
     g_mapGenerated = true;
   }
   drawMap();

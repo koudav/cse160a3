@@ -1,6 +1,6 @@
 class Camera{
     constructor(){
-        this.eye = new Vector3([0,2,0]);
+        this.eye = new Vector3([1,10,1]);
         this.at = new Vector3([0,1,0]);
         this.up = new Vector3([0,1,0]);
     }
